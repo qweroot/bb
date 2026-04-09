@@ -23,7 +23,7 @@ screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.ResetOnSpawn = false
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 240, 0, 240)
+mainFrame.Size = UDim2.new(0, 260, 0, 280)
 mainFrame.Position = UDim2.new(0.02, 0, 0.2, 0)
 mainFrame.BackgroundColor3 = Color3.new(0.12, 0.12, 0.16)
 mainFrame.BorderSizePixel = 0
@@ -44,7 +44,7 @@ titleBar.Parent = mainFrame
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(0.7, 0, 1, 0)
 title.BackgroundTransparency = 1
-title.Text = "NH 戒网瘾中心"
+title.Text = "NH HUB 抵制圈钱"
 title.TextColor3 = Color3.new(1,1,1)
 title.TextSize = 14
 title.Font = Enum.Font.GothamBold
@@ -184,9 +184,46 @@ speedBtnCorner.CornerRadius = UDim.new(0, 4)
 speedBtnCorner.Parent = confirmSpeedBtn
 confirmSpeedBtn.Parent = content
 
+local attackSpeedLabel = Instance.new("TextLabel")
+attackSpeedLabel.Size = UDim2.new(0.5, 0, 0, 20)
+attackSpeedLabel.Position = UDim2.new(0, 10, 0, 185)
+attackSpeedLabel.BackgroundTransparency = 1
+attackSpeedLabel.Text = "攻击间隔: " .. attackCooldown .. "s"
+attackSpeedLabel.TextColor3 = Color3.new(0.85,0.85,0.85)
+attackSpeedLabel.TextSize = 12
+attackSpeedLabel.Font = Enum.Font.Gotham
+attackSpeedLabel.Parent = content
+
+local attackSpeedBox = Instance.new("TextBox")
+attackSpeedBox.Size = UDim2.new(0, 100, 0, 25)
+attackSpeedBox.Position = UDim2.new(1, -110, 0, 183)
+attackSpeedBox.BackgroundColor3 = Color3.new(0.2, 0.2, 0.25)
+attackSpeedBox.TextColor3 = Color3.new(1,1,1)
+attackSpeedBox.Text = tostring(attackCooldown)
+attackSpeedBox.PlaceholderText = "秒"
+attackSpeedBox.TextSize = 13
+attackSpeedBox.Font = Enum.Font.Gotham
+local attackSpeedCorner = Instance.new("UICorner")
+attackSpeedCorner.CornerRadius = UDim.new(0, 4)
+attackSpeedCorner.Parent = attackSpeedBox
+attackSpeedBox.Parent = content
+
+local confirmAttackSpeedBtn = Instance.new("TextButton")
+confirmAttackSpeedBtn.Size = UDim2.new(0, 50, 0, 25)
+confirmAttackSpeedBtn.Position = UDim2.new(1, -55, 0, 183)
+confirmAttackSpeedBtn.BackgroundColor3 = Color3.new(0.25, 0.4, 0.65)
+confirmAttackSpeedBtn.Text = "设速"
+confirmAttackSpeedBtn.TextColor3 = Color3.new(1,1,1)
+confirmAttackSpeedBtn.TextSize = 12
+confirmAttackSpeedBtn.Font = Enum.Font.GothamBold
+local confirmAttackSpeedCorner = Instance.new("UICorner")
+confirmAttackSpeedCorner.CornerRadius = UDim.new(0, 4)
+confirmAttackSpeedCorner.Parent = confirmAttackSpeedBtn
+confirmAttackSpeedBtn.Parent = content
+
 local tipLabel = Instance.new("TextLabel")
 tipLabel.Size = UDim2.new(1, 0, 0, 18)
-tipLabel.Position = UDim2.new(0, 0, 0, 185)
+tipLabel.Position = UDim2.new(0, 0, 0, 218)
 tipLabel.BackgroundTransparency = 1
 tipLabel.Text = "攻击开关:0 | 环绕开关: 按钮"
 tipLabel.TextColor3 = Color3.new(0.55,0.55,0.6)
@@ -209,6 +246,7 @@ local function updateUI()
     rangeLabel.Text = "当前范围：" .. attackRange
     rangeInputBox.Text = tostring(attackRange)
     speedLabel.Text = "环绕速度: " .. string.format("%.2f", orbitSpeed)
+    attackSpeedLabel.Text = "攻击间隔: " .. string.format("%.2f", attackCooldown) .. "s"
 end
 
 toggleButton.MouseButton1Click:Connect(function()
@@ -253,14 +291,25 @@ confirmSpeedBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+confirmAttackSpeedBtn.MouseButton1Click:Connect(function()
+    local num = tonumber(attackSpeedBox.Text)
+    if num and num > 0 then
+        attackCooldown = math.clamp(num, 0.05, 5)
+        attackSpeedBox.Text = tostring(attackCooldown)
+        updateUI()
+    else
+        attackSpeedBox.Text = tostring(attackCooldown)
+    end
+end)
+
 miniBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
-        mainFrame.Size = UDim2.new(0, 240, 0, 26)
+        mainFrame.Size = UDim2.new(0, 260, 0, 26)
         miniBtn.Text = "+"
         content.Visible = false
     else
-        mainFrame.Size = UDim2.new(0, 240, 0, 240)
+        mainFrame.Size = UDim2.new(0, 260, 0, 280)
         miniBtn.Text = "—"
         content.Visible = true
     end
@@ -344,7 +393,6 @@ local function updateOrbitTarget()
     end
 end
 
-local lastFrame = tick()
 RunService.RenderStepped:Connect(function(deltaTime)
     local dt = math.min(0.05, deltaTime)
     
@@ -359,7 +407,6 @@ RunService.RenderStepped:Connect(function(deltaTime)
                     if target then
                         lastAttackTime = currentTime
                         attackRemote:FireServer(target)
-                        attackCooldown = math.random(20, 35) / 100
                     end
                 end
             end
@@ -435,4 +482,3 @@ end
 pcall(randomizeInputs)
 
 updateUI()
--- 如果你想要学习的话，你就全部复制就行了
